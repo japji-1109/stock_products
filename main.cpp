@@ -2,6 +2,7 @@
 #include <vector>
 #include <iomanip>
 #include <chrono>
+#include <string>
 
 using namespace std;
 using namespace chrono;
@@ -24,6 +25,14 @@ void printHeader() {
     cout << "  ================================================\n";
     cout << "         INVENTORY REORDER SYSTEM\n";
     cout << "  ================================================\n";
+}
+
+void printSummaryBorder() {
+    cout << "\n  ╔════════════════════════════════════════════╗\n";
+}
+
+void printSummaryEnd() {
+    cout << "  ╚════════════════════════════════════════════╝\n";
 }
 
 void displayProducts(vector<Product> list) {
@@ -131,28 +140,64 @@ void addProduct() {
     Product p;
 
     cout << "\nEnter Product ID: ";
-    cin >> p.id;
+    if (!(cin >> p.id)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nPlease Enter Valid Product ID.\n";
+        return;
+    }
 
     cin.ignore();
 
     cout << "Enter Product Name: ";
     getline(cin, p.name);
+    if (p.name.empty()) {
+        cout << "\nPlease Enter Valid Product Name.\n";
+        return;
+    }
 
     cout << "Enter Category: ";
     getline(cin, p.category);
+    if (p.category.empty()) {
+        cout << "\nPlease Enter Valid Category.\n";
+        return;
+    }
 
     cout << "Enter Stock Quantity: ";
-    cin >> p.stock;
+    if (!(cin >> p.stock)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nPlease Enter Valid Stock Quantity.\n";
+        return;
+    }
 
     cout << "Enter Reorder Level: ";
-    cin >> p.reorderLevel;
+    if (!(cin >> p.reorderLevel)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nPlease Enter Valid Reorder Level.\n";
+        return;
+    }
 
     cout << "Enter Price: ";
-    cin >> p.price;
+    if (!(cin >> p.price)) {
+        cin.clear();
+        cin.ignore(1000, '\n');
+        cout << "\nPlease Enter Valid Price.\n";
+        return;
+    }
 
     products.push_back(p);
 
-    cout << "\nProduct Added Successfully.\n";
+    printSummaryBorder();
+    cout << "  ║  ✓ Product Added Successfully\n";
+    cout << "  ║  Product ID: " << setw(20) << p.id << "\n";
+    cout << "  ║  Product Name: " << setw(17) << p.name << "\n";
+    cout << "  ║  Category: " << setw(22) << p.category << "\n";
+    cout << "  ║  Stock: " << setw(25) << p.stock << "\n";
+    cout << "  ║  Reorder Level: " << setw(20) << p.reorderLevel << "\n";
+    cout << "  ║  Price: ₹" << setw(24) << fixed << setprecision(2) << p.price << "\n";
+    printSummaryEnd();
 }
 
 void lowStockProducts() {
@@ -169,6 +214,13 @@ void lowStockProducts() {
 
     cout << "\n========== LOW STOCK PRODUCTS ==========\n";
     displayProducts(lowStock);
+
+    printSummaryBorder();
+    cout << "  ║  Total Products: " << setw(18) << products.size() << "\n";
+    cout << "  ║  Low Stock Items: " << setw(17) << lowStock.size() << "\n";
+    cout << "  ║  Percentage: " << setw(22) << fixed << setprecision(2) 
+         << (lowStock.size() * 100.0 / products.size()) << "%\n";
+    printSummaryEnd();
 }
 
 void selectionSortByStock() {
@@ -194,6 +246,13 @@ void selectionSortByStock() {
 
     cout << "\n========== SORTED BY STOCK ==========\n";
     displayProducts(temp);
+
+    printSummaryBorder();
+    cout << "  ║  ✓ Sorted by Stock Level\n";
+    cout << "  ║  Total Products Sorted: " << setw(12) << temp.size() << "\n";
+    cout << "  ║  Lowest Stock: " << setw(21) << temp[0].stock << " units\n";
+    cout << "  ║  Highest Stock: " << setw(20) << temp[n-1].stock << " units\n";
+    printSummaryEnd();
 }
 
 int partition(vector<Product>& arr, int low, int high) {
@@ -235,6 +294,13 @@ void sortByPrice() {
 
     cout << "\n========== SORTED BY PRICE ==========\n";
     displayProducts(temp);
+
+    printSummaryBorder();
+    cout << "  ║  ✓ Sorted by Price (Ascending)\n";
+    cout << "  ║  Total Products Sorted: " << setw(12) << temp.size() << "\n";
+    cout << "  ║  Lowest Price: ₹" << setw(22) << fixed << setprecision(2) << temp[0].price << "\n";
+    cout << "  ║  Highest Price: ₹" << setw(21) << temp[temp.size()-1].price << "\n";
+    printSummaryEnd();
 }
 
 void sortByID(vector<Product>& temp) {
@@ -279,6 +345,14 @@ void binarySearchByID(int key) {
 
             displayProducts(result);
 
+            printSummaryBorder();
+            cout << "  ║  ✓ Product Search Successful\n";
+            cout << "  ║  Product ID: " << setw(20) << temp[mid].id << "\n";
+            cout << "  ║  Product Name: " << setw(17) << temp[mid].name << "\n";
+            cout << "  ║  Stock Available: " << setw(17) << temp[mid].stock << " units\n";
+            cout << "  ║  Price: ₹" << setw(24) << fixed << setprecision(2) << temp[mid].price << "\n";
+            printSummaryEnd();
+
             return;
         }
 
@@ -293,7 +367,10 @@ void binarySearchByID(int key) {
         }
     }
 
-    cout << "\nProduct Not Found.\n";
+    printSummaryBorder();
+    cout << "  ║  ✗ Product Not Found\n";
+    cout << "  ║  Product ID: " << setw(20) << key << " does not exist\n";
+    printSummaryEnd();
 }
 
 void benchmarkSearch() {
@@ -311,11 +388,8 @@ void benchmarkSearch() {
     }
 
     auto end1 = high_resolution_clock::now();
-
     vector<Product> temp = products;
-
     sortByID(temp);
-
     auto start2 = high_resolution_clock::now();
 
     int low = 0;
@@ -343,15 +417,23 @@ void benchmarkSearch() {
 
     auto end2 = high_resolution_clock::now();
 
+    long long linear_time = duration_cast<nanoseconds>(end1 - start1).count();
+    long long binary_time = duration_cast<nanoseconds>(end2 - start2).count();
+    double improvement = ((linear_time - binary_time) / (double)linear_time) * 100;
+
     cout << "\n========== SEARCH BENCHMARK ==========\n";
 
-    cout << "Linear Search Time : "
-         << duration_cast<nanoseconds>(end1 - start1).count()
-         << " ns\n";
+    cout << "Linear Search Time : " << linear_time << " ns\n";
+    cout << "Binary Search Time : " << binary_time << " ns\n";
 
-    cout << "Binary Search Time : "
-         << duration_cast<nanoseconds>(end2 - start2).count()
-         << " ns\n";
+    printSummaryBorder();
+    cout << "  ║  ✓ Benchmark Test Completed\n";
+    cout << "  ║  Total Products: " << setw(18) << products.size() << "\n";
+    cout << "  ║  Search Key: " << setw(23) << key << "\n";
+    cout << "  ║  Linear Search: " << setw(20) << linear_time << " ns\n";
+    cout << "  ║  Binary Search: " << setw(21) << binary_time << " ns\n";
+    cout << "  ║  Performance Gain: " << setw(17) << fixed << setprecision(2) << improvement << "%\n";
+    printSummaryEnd();
 }
 
 void reorderList() {
@@ -368,6 +450,95 @@ void reorderList() {
 
     cout << "\n========== REORDER LIST ==========\n";
     displayProducts(reorder);
+
+    printSummaryBorder();
+    cout << "  ║  ✓ Reorder List Generated\n";
+    cout << "  ║  Items to Reorder: " << setw(16) << reorder.size() << "\n";
+    cout << "  ║  Total SKUs: " << setw(22) << products.size() << "\n";
+    cout << "  ║  Action Required: " << setw(17) << "YES\n";
+    printSummaryEnd();
+}
+
+void comparisonReport() {
+
+    vector<Product> reorder;
+    double totalReorderValue = 0;
+    double totalCurrentValue = 0;
+
+    for (int i = 0; i < products.size(); i++) {
+
+        if (products[i].stock <= products[i].reorderLevel) {
+
+            reorder.push_back(products[i]);
+            int requiredQty = products[i].reorderLevel - products[i].stock;
+            totalReorderValue += (requiredQty * products[i].price);
+        }
+
+        totalCurrentValue += (products[i].stock * products[i].price);
+    }
+
+    cout << "\n========== COMPARISON REPORT ==========\n";
+
+    cout << "\nINVENTORY STATUS OVERVIEW:\n";
+    cout << "═══════════════════════════════════════════════════════════\n";
+    cout << left
+         << setw(35) << "Total Products in System"
+         << setw(25) << ": " << products.size() << " units\n"
+         << setw(35) << "Total Current Inventory Value"
+         << setw(25) << ": ₹" << fixed << setprecision(2) << totalCurrentValue << "\n"
+         << setw(35) << "Products Below Reorder Level"
+         << setw(25) << ": " << reorder.size() << " items\n"
+         << setw(35) << "Products Above Reorder Level"
+         << setw(25) << ": " << (products.size() - reorder.size()) << " items\n";
+
+    cout << "\nLOW STOCK ITEMS REQUIRING ACTION:\n";
+    cout << "═══════════════════════════════════════════════════════════\n";
+
+    if (reorder.size() > 0) {
+
+        cout << left
+             << setw(6) << "ID"
+             << setw(22) << "Name"
+             << setw(10) << "Current"
+             << setw(10) << "Required"
+             << setw(10) << "Deficit"
+             << setw(12) << "Est. Cost\n";
+
+        cout << "───────────────────────────────────────────────────────────\n";
+
+        for (int i = 0; i < reorder.size(); i++) {
+
+            int deficit = reorder[i].reorderLevel - reorder[i].stock;
+            double estimatedCost = deficit * reorder[i].price;
+
+            cout << left
+                 << setw(6) << reorder[i].id
+                 << setw(22) << reorder[i].name
+                 << setw(10) << reorder[i].stock
+                 << setw(10) << reorder[i].reorderLevel
+                 << setw(10) << deficit
+                 << "₹" << fixed << setprecision(2) << estimatedCost << "\n";
+        }
+
+        cout << "───────────────────────────────────────────────────────────\n";
+    }
+
+    cout << "\nREORDER COST ANALYSIS:\n";
+    cout << "═══════════════════════════════════════════════════════════\n";
+    cout << left
+         << setw(35) << "Estimated Reorder Investment"
+         << setw(25) << ": ₹" << fixed << setprecision(2) << totalReorderValue << "\n"
+         << setw(35) << "Current Inventory Value"
+         << setw(25) << ": ₹" << totalCurrentValue << "\n"
+         << setw(35) << "Projected Value After Reorder"
+         << setw(25) << ": ₹" << (totalCurrentValue + totalReorderValue) << "\n";
+
+    printSummaryBorder();
+    cout << "  ║  ✓ Comparison Report Generated\n";
+    cout << "  ║  Critical Items: " << setw(20) << reorder.size() << "\n";
+    cout << "  ║  Reorder Budget: ₹" << setw(21) << fixed << setprecision(2) << totalReorderValue << "\n";
+    cout << "  ║  Report Status: " << setw(21) << "COMPLETE\n";
+    printSummaryEnd();
 }
 
 void categoryDisplay(string category) {
@@ -384,6 +555,18 @@ void categoryDisplay(string category) {
 
     cout << "\n========== CATEGORY: " << category << " ==========\n";
     displayProducts(result);
+
+    double categoryValue = 0;
+    for (int i = 0; i < result.size(); i++) {
+        categoryValue += (result[i].stock * result[i].price);
+    }
+
+    printSummaryBorder();
+    cout << "  ║  ✓ Category Products Displayed\n";
+    cout << "  ║  Category: " << setw(26) << category << "\n";
+    cout << "  ║  Total Items: " << setw(22) << result.size() << "\n";
+    cout << "  ║  Category Value: ₹" << setw(21) << fixed << setprecision(2) << categoryValue << "\n";
+    printSummaryEnd();
 }
 
 void menu() {
@@ -396,21 +579,22 @@ void menu() {
 
         cout << "\n";
         cout << "              MAIN MENU\n";
-        cout << "  ================================\n";
+        cout << "  ════════════════════════════════════\n";
 
-        cout << "  1. Display All Products\n";
-        cout << "  2. Add Product\n";
-        cout << "  3. Low Stock Products\n";
-        cout << "  4. Sort by Stock\n";
-        cout << "  5. Sort by Price\n";
-        cout << "  6. Search Product by ID\n";
-        cout << "  7. Benchmark Search\n";
-        cout << "  8. Reorder List\n";
-        cout << "  9. Show Electronics Products\n";
-        cout << " 10. Show Stationery Products\n";
-        cout << " 11. Exit\n";
+        cout << "  1.  Display All Products\n";
+        cout << "  2.  Add Product\n";
+        cout << "  3.  Low Stock Products\n";
+        cout << "  4.  Sort by Stock\n";
+        cout << "  5.  Sort by Price\n";
+        cout << "  6.  Search Product by ID\n";
+        cout << "  7.  Benchmark Search\n";
+        cout << "  8.  Reorder List\n";
+        cout << "  9.  Show Electronics Products\n";
+        cout << " 10.  Show Stationery Products\n";
+        cout << " 11.  Comparison Report\n";
+        cout << " 12.  Exit\n";
 
-        cout << "  --------------------------------\n";
+        cout << "  ════════════════════════════════════\n";
 
         cout << "\nEnter Your Choice: ";
 
@@ -419,7 +603,7 @@ void menu() {
             cin.clear();
             cin.ignore(1000, '\n');
 
-            cout << "\nInvalid Input.\n";
+            cout << "\nPlease Enter Valid Choice.\n";
             continue;
         }
 
@@ -428,27 +612,26 @@ void menu() {
             case 1:
                 cout << "\n========== ALL PRODUCTS ==========\n";
                 displayProducts(products);
-                cout << "\nTask Completed.\n";
+                printSummaryBorder();
+                cout << "  ║  ✓ All Products Displayed\n";
+                cout << "  ║  Total Products: " << setw(18) << products.size() << "\n";
+                printSummaryEnd();
                 break;
 
             case 2:
                 addProduct();
-                cout << "\nTask Completed.\n";
                 break;
 
             case 3:
                 lowStockProducts();
-                cout << "\nTask Completed.\n";
                 break;
 
             case 4:
                 selectionSortByStock();
-                cout << "\nTask Completed.\n";
                 break;
 
             case 5:
                 sortByPrice();
-                cout << "\nTask Completed.\n";
                 break;
 
             case 6: {
@@ -456,49 +639,52 @@ void menu() {
                 int id;
 
                 cout << "\nEnter Product ID: ";
-                cin >> id;
+                if (!(cin >> id)) {
+                    cin.clear();
+                    cin.ignore(1000, '\n');
+                    cout << "\nPlease Enter Valid Product ID.\n";
+                    break;
+                }
 
                 binarySearchByID(id);
-
-                cout << "\nTask Completed.\n";
 
                 break;
             }
 
             case 7:
                 benchmarkSearch();
-                cout << "\nTask Completed.\n";
                 break;
 
             case 8:
                 reorderList();
-                cout << "\nTask Completed.\n";
                 break;
 
             case 9:
                 categoryDisplay("Electronics");
-                cout << "\nTask Completed.\n";
                 break;
 
             case 10:
                 categoryDisplay("Stationery");
-                cout << "\nTask Completed.\n";
                 break;
 
             case 11:
+                comparisonReport();
+                break;
+
+            case 12:
 
                 cout << "\n";
-                cout << "  ======================================\n";
-                cout << "   Thank You For Using The System\n";
-                cout << "  ======================================\n";
+                cout << "  ══════════════════════════════════════\n";
+                cout << "     Thank You For Using The System\n";
+                cout << "  ══════════════════════════════════════\n";
 
                 break;
 
             default:
-                cout << "\nInvalid Choice.\n";
+                cout << "\nPlease Enter Valid Choice.\n";
         }
 
-    } while(choice != 11);
+    } while(choice != 12);
 }
 
 int main() {
